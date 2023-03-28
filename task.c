@@ -83,7 +83,7 @@ int main(int argc, char** argv)
 		matrixCalc(size);
 #pragma acc host_data use_device(matrixNew, matrixOld)
 		{
-			stat = cublasDaxpy(handle, totalSize, minus, matrixNew, 1, matrixOld, 1);
+			stat = cublasDaxpy(handle, totalSize, &minus, matrixNew, 1, matrixOld, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasDaxpy error\n");
