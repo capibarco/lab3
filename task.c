@@ -11,7 +11,7 @@ double* matrixNew = 0;
 
 double matrixCalc(int size)
 {
-#pragma acc parallel loop independent collapse(2) vector vector_length(size) gang num_gangs(size) reduction(max:errorNow) present(matrixOld[0:size*size], matrixNew[0:size*size])
+#pragma acc parallel loop independent collapse(2) vector vector_length(size) gang num_gangs(size) present(matrixOld[0:size*size], matrixNew[0:size*size])
 	for (int i = 1; i < size - 1; i++)
 	{
 		for (int j = 1; j < size - 1; j++)
