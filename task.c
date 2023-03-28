@@ -27,12 +27,13 @@ void matrixCalc(int size)
 
 double matrixSwap(int totalSize, int idx)
 {
+	double err;
 #pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize])
 	{
 		double* temp = matrixOld;
 		matrixOld = matrixNew;
 		matrixNew = temp;
-		double err = matrixNew[idx - 1];
+		err = matrixNew[idx - 1];
 	}
 	return err;
 }
