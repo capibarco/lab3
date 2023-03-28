@@ -6,8 +6,8 @@
 #include <time.h>
 #include <cublas_v2.h>
 
-double* matrixOld=0;
-double* matrixNew=0;
+double* matrixOld = 0;
+double* matrixNew = 0;
 
 double matrixCalc(int size)
 {
@@ -38,77 +38,77 @@ void matrixSwap(int totalSize)
 int main(int argc, char** argv)
 {
 	cublasStatus_t stat;
-    cublasHandle_t handle;
-    cublasCreate(&handle);
-	
+	cublasHandle_t handle;
+	cublasCreate(&handle);
+
 	int cornerUL = 10;
 	int cornerUR = 20;
 	int cornerBR = 30;
 	int cornerBL = 20;
-	
+
 	char* eptr;
 	const double maxError = strtod((argv[1]), &eptr);
 	const int size = atoi(argv[2]);
 	const int maxIteration = atoi(argv[3]);
 
 	int totalSize = size * size;
-	
-	matrixOld = (double*)calloc(totalSize , sizeof(double));
-	matrixNew = (double*)calloc(totalSize , sizeof(double));
+
+	matrixOld = (double*)calloc(totalSize, sizeof(double));
+	matrixNew = (double*)calloc(totalSize, sizeof(double));
 
 	const double fraction = 10.0 / (size - 1);
 	double errorNow = 1.0;
 	int iterNow = 0;
 	int result = 0;
-	clock_t begin = clock();	
+	clock_t begin = clock();
 #pragma acc enter data create(matrixOld[0:totalSize], matrixNew[0:totalSize]) copyin(errorNow)
 #pragma acc parallel loop
 	for (int i = 0; i < size; i++)
 	{
-			matrixOld[i] = cornerUL + i * fraction;
-			matrixOld[i * size] = cornerUL + i * fraction;
-			matrixOld[size * i + size - 1] = cornerUR + i * fraction;
-			matrixOld[size * (size - 1) + i] = cornerUR + i * fraction;
+		matrixOld[i] = cornerUL + i * fraction;
+		matrixOld[i * size] = cornerUL + i * fraction;
+		matrixOld[size * i + size - 1] = cornerUR + i * fraction;
+		matrixOld[size * (size - 1) + i] = cornerUR + i * fraction;
 
-			matrixNew[i] = matrixOld[i];
-			matrixNew[i * size] = matrixOld[i * size];
-			matrixNew[size * i + size - 1] = matrixOld[size * i + size - 1];
-			matrixNew[size * (size - 1) + i] = matrixOld[size * (size - 1) + i];
+		matrixNew[i] = matrixOld[i];
+		matrixNew[i * size] = matrixOld[i * size];
+		matrixNew[size * i + size - 1] = matrixOld[size * i + size - 1];
+		matrixNew[size * (size - 1) + i] = matrixOld[size * (size - 1) + i];
 	}
 
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
 		iterNow++;
 		matrixCalc(size);
-		#pragma acc host_data use_device(matrixNew, matrixOld)
+#pragma acc host_data use_device(matrixNew, matrixOld)
 		{
 			stat = cublasDaxpy(handle, totalSize, -1, matrixNew, 1, matrixOld, 1);
-			if (sta != CUBLAS_STATUS_SUCCESS) 
+			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasDaxpy error\n");
 				cublasDestroy(handle);
-				retrun EXIT_FAILURE;
+				return EXIT_FAILURE;
 			}
 
 			stat = cublasIdamax(handle, totalSize, matrixOld, 1, &result);
-			if (sta != CUBLAS_STATUS_SUCCESS) 
+			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasIdamax error\n");
 				cublasDestroy(handle);
-				retrun EXIT_FAILURE;
+				return EXIT_FAILURE;
 			}
 		}
-		error = matrixOld[result-1];
+		errorNow = matrixOld[result - 1];
 		matrixSwap(totalSize);
 	}
-	
+
 #pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize])
 
-	clock_t end = clock();	
+	clock_t end = clock();
 	cublasDestroy(handle);
 	free(matrixOld);
-   	free(matrixNew);
+	free(matrixNew);
 	printf("iterations = %d, error = %lf, time = %lf\n", iterNow, errorNow, (double)(end - begin) / CLOCKS_PER_SEC);
-		
+
 	return 0;
 }
