@@ -32,8 +32,9 @@ double matrixSwap(int totalSize, int idx)
 		double* temp = matrixOld;
 		matrixOld = matrixNew;
 		matrixNew = temp;
-		return matrixNew[idx];
+		double err = matrixNew[idx - 1];
 	}
+	return err;
 }
 
 int main(int argc, char** argv)
