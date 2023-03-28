@@ -9,7 +9,7 @@
 double* matrixOld = 0;
 double* matrixNew = 0;
 
-double matrixCalc(int size)
+void matrixCalc(int size)
 {
 #pragma acc parallel loop independent collapse(2) vector vector_length(size) gang num_gangs(size) present(matrixOld[0:size*size], matrixNew[0:size*size])
 	for (int i = 1; i < size - 1; i++)
@@ -60,6 +60,7 @@ int main(int argc, char** argv)
 	double errorNow = 1.0;
 	int iterNow = 0;
 	int result = 0;
+	const double minus = -1;
 	clock_t begin = clock();
 #pragma acc enter data create(matrixOld[0:totalSize], matrixNew[0:totalSize]) copyin(errorNow)
 #pragma acc parallel loop
@@ -82,7 +83,7 @@ int main(int argc, char** argv)
 		matrixCalc(size);
 #pragma acc host_data use_device(matrixNew, matrixOld)
 		{
-			stat = cublasDaxpy(handle, totalSize, -1, matrixNew, 1, matrixOld, 1);
+			stat = cublasDaxpy(handle, totalSize, minus, matrixNew, 1, matrixOld, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasDaxpy error\n");
