@@ -32,7 +32,7 @@ double matrixSwap(int totalSize, int idx)
 		double* temp = matrixOld;
 		matrixOld = matrixNew;
 		matrixNew = temp;
-		return matrixNew[idx-1];
+		return matrixNew[idx];
 	}
 }
 
