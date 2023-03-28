@@ -25,13 +25,14 @@ void matrixCalc(int size)
 	}
 }
 
-void matrixSwap(int totalSize)
+double matrixSwap(int totalSize, int idx)
 {
 #pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize])
 	{
 		double* temp = matrixOld;
 		matrixOld = matrixNew;
 		matrixNew = temp;
+		return matrixNew[idx-1];
 	}
 }
 
@@ -99,8 +100,7 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 		}
-		errorNow = matrixOld[result - 1];
-		matrixSwap(totalSize);
+		errorNow = matrixSwap(totalSize, result);
 	}
 
 #pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize])
