@@ -8,7 +8,7 @@
 
 double* matrixOld = 0;
 double* matrixNew = 0;
-
+double* matrixTmp = 0;
 void matrixCalc(int size)
 {
 #pragma acc parallel loop independent collapse(2) vector vector_length(size) gang num_gangs(size) present(matrixOld[0:size*size], matrixNew[0:size*size])
@@ -28,12 +28,12 @@ void matrixCalc(int size)
 double matrixSwap(int totalSize, int idx)
 {
 	double err = 10;
-#pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize])
+#pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 	{
 		double* temp = matrixOld;
 		matrixOld = matrixNew;
 		matrixNew = temp;
-		err = matrixNew[idx - 1];
+		err = matrixTmp[idx - 1];
 	}
 	return err;
 }
@@ -58,14 +58,14 @@ int main(int argc, char** argv)
 
 	matrixOld = (double*)calloc(totalSize, sizeof(double));
 	matrixNew = (double*)calloc(totalSize, sizeof(double));
-
+	matrixTmp = (double*)calloc(totalSize, sizeof(double));
 	const double fraction = 10.0 / (size - 1);
 	double errorNow = 1.0;
 	int iterNow = 0;
 	int result = 0;
 	const double minus = -1;
 	clock_t begin = clock();
-#pragma acc enter data create(matrixOld[0:totalSize], matrixNew[0:totalSize]) copyin(errorNow)
+#pragma acc enter data create(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) copyin(errorNow)
 #pragma acc parallel loop
 	for (int i = 0; i < size; i++)
 	{
@@ -86,7 +86,14 @@ int main(int argc, char** argv)
 		matrixCalc(size);
 #pragma acc host_data use_device(matrixNew, matrixOld)
 		{
-			stat = cublasDaxpy(handle, totalSize, &minus, matrixNew, 1, matrixOld, 1);
+			stat = cublasDcopy(handle, totalSize, matrixOld, 1, matrixTmp, 1);
+			if (stat != CUBLAS_STATUS_SUCCESS)
+			{
+				printf("cublasDcopy error\n");
+				cublasDestroy(handle);
+				return EXIT_FAILURE;
+			}
+			stat = cublasDaxpy(handle, totalSize, &minus, matrixNew, 1, matrixTmp, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasDaxpy error\n");
@@ -94,7 +101,7 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 
-			stat = cublasIdamax(handle, totalSize, matrixOld, 1, &result);
+			stat = cublasIdamax(handle, totalSize, matrixTmp, 1, &result);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasIdamax error\n");
