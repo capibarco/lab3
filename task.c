@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 
-			stat = cublasDaxpy(handle, totalSize, &minus, matrixNew, 1, matrixTmp, 1);
+			stat = cublasDaxpy(handle, totalSize, &minus, matrixTmp, 1, matrixNew , 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasDaxpy error\n");
