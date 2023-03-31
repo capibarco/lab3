@@ -9,31 +9,26 @@
 double* matrixOld = 0;
 double* matrixNew = 0;
 double* matrixTmp = 0;
-void matrixCalc(int size)
+#define at(arr, x, y) (arr[(x)*size+(y)])
+void initArrays(double* mainArr, double* subArr, int& size) {
+memset(mainArr, 0, sizeof(double) * size_q);
+for (int i = 0; i < size; i++)
 {
-#pragma acc parallel loop independent collapse(2) vector vector_length(size) gang num_gangs(size) present(matrixOld[0:size*size], matrixNew[0:size*size])
-	for (int i = 1; i < size - 1; i++)
-	{
-		for (int j = 1; j < size - 1; j++)
-		{
-			matrixNew[i * size + j] = 0.25 * (
-				matrixOld[i * size + j - 1] +
-				matrixOld[(i - 1) * size + j] +
-				matrixOld[(i + 1) * size + j] +
-				matrixOld[i * size + j + 1]);
-		}
-	}
-}
+at(mainArr, 0, i) = 10 / size * i + 10;
+at(mainArr, i, 0) = 10 / size * i + 10;
+at(mainArr, size - 1, i) = 10 / size * i + 20;
+at(mainArr, i, size - 1) = 10 / size * i + 20;
 
-void matrixSwap(int totalSize)
-{
-#pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize])
-	{
-		double* temp = matrixOld;
-		matrixOld = matrixNew;
-		matrixNew = temp;
-	}
+at(subArr, 0, i) = 10 / size * i + 10;
+at(subArr, i, 0) = 10 / size * i + 10;
+at(subArr, size - 1, i) = 10 / size * i + 20;
+at(subArr, i, size - 1) = 10 / size * i + 20;
 }
+memcpy(subArr, mainArr, sizeof(double) * size_q);
+}
+#define size_q size*size
+constexpr int ITERS_BETWEEN_UPDATE = 75;
+constexpr double negOne = -1;
 
 int main(int argc, char** argv)
 {
@@ -56,65 +51,56 @@ int main(int argc, char** argv)
 	matrixOld = (double*)calloc(totalSize, sizeof(double));
 	matrixNew = (double*)calloc(totalSize, sizeof(double));
 	matrixTmp = (double*)malloc(totalSize * sizeof(double));
-	const double fraction = 10.0 / (size - 1);
-	double errorNow = 1.0;
-	int iterNow = 0;
-	int result = 0;
-	const double minus = -1;
-	
+ double error = 1;
+    int iteration = 0;
+    int iters_up = 0;
+	initArrays(matrixOld, matrixNew, size);
 	clock_t begin = clock();
-#pragma acc enter data create(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) copyin(errorNow)
-#pragma acc parallel loop
-	for (int i = 0; i < size; i++)
-	{
-		matrixOld[i] = cornerUL + i * fraction;
-		matrixOld[i * size] = cornerUL + i * fraction;
-		matrixOld[size * i + size - 1] = cornerUR + i * fraction;
-		matrixOld[size * (size - 1) + i] = cornerUR + i * fraction;
+#pragma acc enter data copyin(matrixNew[:size_q], matrixOld[:size_q], matrixTmp[:size_q])
 
-		matrixNew[i] = matrixOld[i];
-		matrixNew[i * size] = matrixOld[i * size];
-		matrixNew[size * i + size - 1] = matrixOld[size * i + size - 1];
-		matrixNew[size * (size - 1) + i] = matrixOld[size * (size - 1) + i];
-	}
-	while (errorNow > maxError && iterNow < maxIteration)
+    do 
 	{
-		iterNow++;
-		matrixCalc(size);
-#pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
+		#pragma acc parallel loop collapse(2) present(matrixNew[:size_q], matrixOld[:size_q]) vector_length(128) async
+        for (int x = 1; x < size - 1; x++) 
+            for (int y = 1; y < size - 1; y++) 
+                at(matrixNew, x, y) = 0.25 * (at(matrixOld, x + 1, y) + at(matrixOld, x - 1, y) + at(matrixOld, x, y - 1) + at(matrixOld, x, y + 1));
+        double* swap = matrixOld;
+        matrixOld = matrixNew;
+        matrixNew = swap;
+
+		#ifdef OPENACC__
+			acc_attach((void**)matrixOld);
+			acc_attach((void**)matrixNew);
+		#endif
+
+        if (iters_up >= ITERS_BETWEEN_UPDATE && iteration < iterations) 
 		{
-			stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
-			if (stat != CUBLAS_STATUS_SUCCESS)
-			{
-				printf("cublasDcopy error\n");
-				cublasDestroy(handle);
-				return EXIT_FAILURE;
-			}
-			
 
-			stat = cublasDaxpy(handle, totalSize, &minus, matrixOld, 1, matrixTmp, 1);
-			if (stat != CUBLAS_STATUS_SUCCESS)
+			#pragma acc data present(matrixTmp[:size_q], matrixNew[:size_q], matrixOld[:size_q]) wait
 			{
-				printf("cublasDaxpy error\n");
-				cublasDestroy(handle);
-				return EXIT_FAILURE;
+				#pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
+				{
+
+					status = cublasDcopy(handle, size_q, matrixOld, 1, matrixTmp, 1);
+					if (status != CUBLAS_STATUS_SUCCESS) std::cout << "copy error" << std::endl, exit(30);
+
+					status = cublasDaxpy(handle, size_q, &negOne, matrixNew, 1, matrixTmp, 1);
+					if (status != CUBLAS_STATUS_SUCCESS) std::cout << "sum error" << std::endl, exit(40);
+
+					status = cublasIdamax(handle, size_q, matrixTmp, 1, &max_idx);
+					if (status != CUBLAS_STATUS_SUCCESS) std::cout << "abs max error" << std::endl, exit(41);
+				}
 			}
 
-			stat = cublasIdamax(handle, totalSize, matrixTmp, 1, &result);
-			if (stat != CUBLAS_STATUS_SUCCESS)
-			{
-				printf("cublasIdamax error\n");
-				cublasDestroy(handle);
-				return EXIT_FAILURE;
-			}
-		}
-		#pragma acc update self(matrixTmp[result-1])
-		errorNow = matrixTmp[result-1];
-		matrixSwap(totalSize);
-		
-	}
+			#pragma acc update self(matrixTmp[max_idx-1])
+            error = fabs(matrixTmp[max_idx - 1]);
 
-#pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
+            iters_up = -1;
+        }
+        iteration++;
+        iters_up++;
+    } while (iteration < iterations && error > eps);
+#pragma acc exit data delete(matrixNew[:size_q]) copyout(matrixOld[:size_q])
 
 	clock_t end = clock();
 	cublasDestroy(handle);
