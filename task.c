@@ -80,6 +80,7 @@ int main(int argc, char** argv)
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
 		iterNow++;
+		#pragma acc parallel loop independent collapse(2) vector vector_length(size) gang num_gangs(size) present(matrixOld[0:size*size], matrixNew[0:size*size])
 		for (int i = 1; i < size - 1; i++)
 		{
 			for (int j = 1; j < size - 1; j++)
@@ -91,6 +92,7 @@ int main(int argc, char** argv)
 					matrixOld[i * size + j + 1]);
 			}
 		}
+		
 		acc_attach((void**)matrixOld);
 		acc_attach((void**)matrixNew);
 #pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
