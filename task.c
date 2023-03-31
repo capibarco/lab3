@@ -110,6 +110,14 @@ int main(int argc, char** argv)
 				cublasDestroy(handle);
 				return EXIT_FAILURE;
 			}
+			for (int i = 0; i < size; i++)
+	{
+		printf("%d ", i);
+		for (int j = 0; j < size; j++)
+			printf("%lf\t", matrixTmp[i * size + j]);
+		printf("\n");
+	}
+	printf("\n");
 			stat = cublasDaxpy(handle, totalSize, &minus, matrixNew, 1, matrixTmp, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
