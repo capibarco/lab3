@@ -101,7 +101,7 @@ int main(int argc, char** argv)
 				printf("%lf\t", matrixNew[i * size + j]);
 			printf("\n");
 		}
-#pragma acc host_data use_device(matrixNew, matrixOld)
+#pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 		{
 			stat = cublasDcopy(handle, totalSize, matrixOld, 1, matrixTmp, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
