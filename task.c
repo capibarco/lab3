@@ -110,6 +110,8 @@ int main(int argc, char** argv)
 		}
 		#pragma acc kernels
 		errorNow = matrixOld[result-1];
+		#pragma acc kernels
+		printf("%lf",matrixOld[result-1]);
 		matrixSwap(totalSize);
 		
 	}
