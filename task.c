@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 	int iterNow = 0;
 	int result = 0;
 	const double minus = -1;
-	
+	int iters_up = 0;
 	clock_t begin = clock();
 	for (int i = 0; i < size; i++)
 	{
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
 			acc_attach((void**)matrixOld);
 			acc_attach((void**)matrixNew);
 		#endif
-		 if (iterNow%75 >= 75 && iterNow < maxIteration) 
+		 if (iters_up >= 75 && iterNow < maxIteration) 
 		 {
 #pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) wait
 		{
@@ -133,8 +133,9 @@ int main(int argc, char** argv)
 		
 #pragma acc update self(matrixTmp[result-1])
 		errorNow = matrixTmp[result-1];	
+			 iters_up=-1;
 		 }
-		
+		iters_up++;
 		iterNow++;
 	}
 
