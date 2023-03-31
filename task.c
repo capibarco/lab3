@@ -100,6 +100,7 @@ int main(int argc, char** argv)
 			acc_attach((void**)matrixNew);
 		#endif
 		 if (iterNow%75 >= 75 && iterNow < maxIteration) 
+		 {
 #pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) wait
 		{
 #pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
@@ -132,6 +133,7 @@ int main(int argc, char** argv)
 		
 #pragma acc update self(matrixTmp[result-1])
 		errorNow = matrixTmp[result-1];	
+		 }
 		
 		iterNow++;
 	}
