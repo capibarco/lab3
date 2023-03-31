@@ -9,8 +9,9 @@
 double* matrixOld = 0;
 double* matrixNew = 0;
 double* matrixTmp = 0;
+#define size_q size*size
 #define at(arr, x, y) (arr[(x)*size+(y)])
-void initArrays(double* mainArr, double* subArr, int& size) {
+void initArrays(double* mainArr, double* subArr, int size) {
 memset(mainArr, 0, sizeof(double) * size_q);
 for (int i = 0; i < size; i++)
 {
@@ -26,7 +27,7 @@ at(subArr, i, size - 1) = 10 / size * i + 20;
 }
 memcpy(subArr, mainArr, sizeof(double) * size_q);
 }
-#define size_q size*size
+
 const int ITERS_BETWEEN_UPDATE = 75;
 
 
@@ -88,11 +89,11 @@ int main(int argc, char** argv)
 					stat = cublasDaxpy(handle, size_q, &minus, matrixNew, 1, matrixTmp, 1);
 					
 
-					stat = cublasIdamax(handle, size_q, matrixTmp, 1, &max_idx);
+					stat = cublasIdamax(handle, size_q, matrixTmp, 1, &result);
 				}
 			}
 
-			#pragma acc update self(matrixTmp[max_idx-1])
+			#pragma acc update self(matrixTmp[result-1])
             error = fabs(matrixTmp[max_idx - 1]);
 
             iters_up = -1;
