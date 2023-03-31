@@ -80,7 +80,19 @@ int main(int argc, char** argv)
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
 		iterNow++;
-		matrixCalc(size);
+		for (int i = 1; i < size - 1; i++)
+		{
+			for (int j = 1; j < size - 1; j++)
+			{
+				matrixNew[i * size + j] = 0.25 * (
+					matrixOld[i * size + j - 1] +
+					matrixOld[(i - 1) * size + j] +
+					matrixOld[(i + 1) * size + j] +
+					matrixOld[i * size + j + 1]);
+			}
+		}
+		acc_attach((void**)matrixOld);
+		acc_attach((void**)matrixNew);
 #pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 		{
 			stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
@@ -91,7 +103,6 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 			
-
 			stat = cublasDaxpy(handle, totalSize, &minus, matrixOld, 1, matrixTmp, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
@@ -109,9 +120,7 @@ int main(int argc, char** argv)
 			}
 		}
 		#pragma acc update self(matrixTmp[result-1])
-		errorNow = matrixTmp[result-1];
-		matrixSwap(totalSize);
-		
+		errorNow = matrixTmp[result-1];		
 	}
 
 #pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
