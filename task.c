@@ -8,6 +8,7 @@
 
 double* matrixOld = 0;
 double* matrixNew = 0;
+double* matrixTmp = 0;
 void matrixCalc(int size)
 {
 #pragma acc parallel loop independent collapse(2) vector vector_length(size) gang num_gangs(size) present(matrixOld[0:size*size], matrixNew[0:size*size])
@@ -54,6 +55,7 @@ int main(int argc, char** argv)
 
 	matrixOld = (double*)calloc(totalSize, sizeof(double));
 	matrixNew = (double*)calloc(totalSize, sizeof(double));
+	matrixTmp = (double*)malloc(totalSize * sizeof(double));
 	const double fraction = 10.0 / (size - 1);
 	double errorNow = 1.0;
 	int iterNow = 0;
@@ -61,7 +63,7 @@ int main(int argc, char** argv)
 	const double minus = -1;
 	
 	clock_t begin = clock();
-#pragma acc enter data create(matrixOld[0:totalSize], matrixNew[0:totalSize]) copyin(errorNow)
+#pragma acc enter data create(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) copyin(errorNow)
 #pragma acc parallel loop
 	for (int i = 0; i < size; i++)
 	{
@@ -79,27 +81,8 @@ int main(int argc, char** argv)
 	{
 		iterNow++;
 		matrixCalc(size);
-		printf("O\n");
-		#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize])
-		for (int i = 0; i < size; i++)
+#pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 		{
-			for (int j = 0; j < size; j++)
-				printf("%d %lf\t", i * size + j, matrixOld[i * size + j]);
-			printf("\n");
-		}
-		printf("\n");
-		printf("N\n");
-		#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize])
-		for (int i = 0; i < size; i++)
-		{
-			for (int j = 0; j < size; j++)
-				printf("%d %lf\t", i * size + j, matrixNew[i * size + j]);
-			printf("\n");
-		}
-		printf("\n");
-#pragma acc host_data use_device(matrixNew, matrixOld)
-		{
-			/*
 			stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
@@ -107,10 +90,9 @@ int main(int argc, char** argv)
 				cublasDestroy(handle);
 				return EXIT_FAILURE;
 			}
-			*/
 			
 
-			stat = cublasDaxpy(handle, totalSize, &minus, matrixNew, 1, matrixOld, 1);
+			stat = cublasDaxpy(handle, totalSize, &minus, matrixOld, 1, matrixTmp, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasDaxpy error\n");
@@ -118,7 +100,7 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 
-			stat = cublasIdamax(handle, totalSize, matrixOld, 1, &result);
+			stat = cublasIdamax(handle, totalSize, matrixTmp, 1, &result);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasIdamax error\n");
@@ -126,41 +108,19 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 		}
-		#pragma acc kernels
-		errorNow = fabs(matrixOld[result-1]);
-		
-		printf("O\n");
-		#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize])
-		for (int i = 0; i < size; i++)
-		{
-			for (int j = 0; j < size; j++)
-				printf("%d %lf\t", i * size + j, matrixOld[i * size + j]);
-			printf("\n");
-		}
-		printf("\n");
-		printf("N\n");
-		#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize])
-		for (int i = 0; i < size; i++)
-		{
-			for (int j = 0; j < size; j++)
-				printf("%d %lf\t", i * size + j, matrixNew[i * size + j]);
-			printf("\n");
-		}
-		printf("\n");
-		
-		printf("%lf\n",errorNow);
-		fflush(stdout);
-		
+		#pragma acc update self(matrixTmp[result-1])
+		errorNow = matrixTmp[result-1];
 		matrixSwap(totalSize);
 		
 	}
 
-#pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize])
+#pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 
 	clock_t end = clock();
 	cublasDestroy(handle);
 	free(matrixOld);
 	free(matrixNew);
+	free(matrixTmp);
 	printf("iterations = %d, error = %lf, time = %lf\n", iterNow, errorNow, (double)(end - begin) / CLOCKS_PER_SEC);
 
 	return 0;
