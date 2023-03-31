@@ -64,6 +64,7 @@ int main(int argc, char** argv)
 	int iterNow = 0;
 	int result = 0;
 	const double minus = -1;
+	
 	clock_t begin = clock();
 #pragma acc enter data create(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) copyin(errorNow)
 #pragma acc parallel loop
@@ -79,11 +80,27 @@ int main(int argc, char** argv)
 		matrixNew[size * i + size - 1] = matrixOld[size * i + size - 1];
 		matrixNew[size * (size - 1) + i] = matrixOld[size * (size - 1) + i];
 	}
-
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			printf("%lf ", matrixNew[i * size + j]);
+		}
+		printf("\t");
+	}
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
 		iterNow++;
 		matrixCalc(size);
+			for (int i = 0; i < size; i++)
+	{
+	{
+		for (int j = 0; j < size; j++)
+		{
+			printf("%lf ", matrixNew[i * size + j]);
+		}
+		printf("\t");
+	}
 #pragma acc host_data use_device(matrixNew, matrixOld)
 		{
 			stat = cublasDcopy(handle, totalSize, matrixOld, 1, matrixTmp, 1);
