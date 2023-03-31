@@ -27,17 +27,12 @@ void matrixCalc(int size)
 
 void matrixSwap(int totalSize, int idx)
 {
-	//double err = 10;
 #pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 	{
-		//err = matrixTmp[idx - 1];
-		//printf("%d %lf\n",idx, err);
 		double* temp = matrixOld;
 		matrixOld = matrixNew;
 		matrixNew = temp;
-		
 	}
-	//return err;
 }
 
 int main(int argc, char** argv)
@@ -82,31 +77,12 @@ int main(int argc, char** argv)
 		matrixNew[size * i + size - 1] = matrixOld[size * i + size - 1];
 		matrixNew[size * (size - 1) + i] = matrixOld[size * (size - 1) + i];
 	}
-	#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-	for (int i = 0; i < size; i++)
-	{
-		printf("%d ", i);
-		for (int j = 0; j < size; j++)
-			printf("%lf\t", matrixNew[i * size + j]);
-		printf("\n");
-	}
-	printf("\n");
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
 		iterNow++;
 		matrixCalc(size);
-		#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-		for (int i = 0; i < size; i++)
-		{
-			printf("%d ", i);
-			for (int j = 0; j < size; j++)
-				printf("%lf\t", matrixNew[i * size + j]);
-			printf("\n");
-		}
-		printf("\n");
 #pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 		{
-			
 			stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
@@ -132,44 +108,10 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 		}
-			printf("N\n");
-		#pragma acc kernels loop seq present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-		
-			for (int i = 0; i < size; i++)
-			{
-				printf("%d ", i);
-				for (int j = 0; j < size; j++)
-					printf("%lf\t", matrixNew[i * size + j]);
-				printf("\n");
-			}
-			printf("\n");
-		printf("O\n");
-		#pragma acc kernels loop seq present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-			
-			for (int i = 0; i < size; i++)
-			{
-				printf("%d ", i);
-				for (int j = 0; j < size; j++)
-					printf("%lf\t", matrixOld[i * size + j]);
-				printf("\n");
-			}
-			printf("\n");
-					printf("T\n");
-		#pragma acc kernels loop seq present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-
-			for (int i = 0; i < size; i++)
-			{
-				printf("%d ", i);
-				for (int j = 0; j < size; j++)
-					printf("%lf\t", matrixTmp[i * size + j]);
-				printf("\n");
-			}
-			printf("\n");
 		#pragma acc kernels
 		errorNow = matrixTmp[result-1];
-			matrixSwap(totalSize, result);
+		matrixSwap(totalSize, result);
 		
-		printf("%lf %d\n",matrixTmp[result-1], errorNow);
 	}
 
 #pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize])
