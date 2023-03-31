@@ -80,12 +80,13 @@ int main(int argc, char** argv)
 		matrixNew[size * i + size - 1] = matrixOld[size * i + size - 1];
 		matrixNew[size * (size - 1) + i] = matrixOld[size * (size - 1) + i];
 	}
-	#pragma acc kernels
+	#pragma acc kernels sequence 
 	for (int i = 0; i < size; i++)
 	{
 		printf("%d ", i);
 		for (int j = 0; j < size; j++)
 			printf("%lf\t", matrixNew[i * size + j]);
+		printf("\n");
 		#pragma acc wait()
 		
 	}
@@ -94,12 +95,13 @@ int main(int argc, char** argv)
 	{
 		iterNow++;
 		matrixCalc(size);
-		#pragma acc kernels
+		#pragma acc kernels sequence
 		for (int i = 0; i < size; i++)
 		{
 			printf("%d ", i);
 			for (int j = 0; j < size; j++)
 				printf("%lf\t", matrixNew[i * size + j]);
+			printf("\n");
 			#pragma acc wait()
 		}
 #pragma acc host_data use_device(matrixNew, matrixOld)
