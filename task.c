@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 					matrixOld[i * size + j + 1]);
 			}
 		}
-		
+		#pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 #pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 		{
 			stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
