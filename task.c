@@ -79,6 +79,7 @@ int main(int argc, char** argv)
 	{
 		iterNow++;
 		matrixCalc(size);
+		printf("O\n");
 		#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize])
 		for (int i = 0; i < size; i++)
 		{
@@ -87,6 +88,7 @@ int main(int argc, char** argv)
 			printf("\n");
 		}
 		printf("\n");
+		printf("N\n");
 		#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize])
 		for (int i = 0; i < size; i++)
 		{
@@ -127,6 +129,7 @@ int main(int argc, char** argv)
 		#pragma acc kernels
 		errorNow = fabs(matrixOld[result-1]);
 		
+		printf("O\n");
 		#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize])
 		for (int i = 0; i < size; i++)
 		{
@@ -135,6 +138,7 @@ int main(int argc, char** argv)
 			printf("\n");
 		}
 		printf("\n");
+		printf("N\n");
 		#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize])
 		for (int i = 0; i < size; i++)
 		{
