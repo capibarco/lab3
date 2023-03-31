@@ -25,13 +25,13 @@ void matrixCalc(int size)
 	}
 }
 
-void matrixSwap(int totalSize, int idx)
+void matrixSwap(int totalSize)
 {
-#pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
+#pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize])
 	{
-		double* temp = matrixOld;
+		//double* temp = matrixOld;
 		matrixOld = matrixNew;
-		matrixNew = temp;
+		//matrixNew = temp;
 	}
 }
 
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 
 	matrixOld = (double*)calloc(totalSize, sizeof(double));
 	matrixNew = (double*)calloc(totalSize, sizeof(double));
-	matrixTmp = (double*)calloc(totalSize, sizeof(double));
+	matrixTmp = (double*)malloc(totalSize, sizeof(double));
 	const double fraction = 10.0 / (size - 1);
 	double errorNow = 1.0;
 	int iterNow = 0;
@@ -110,16 +110,17 @@ int main(int argc, char** argv)
 		}
 		#pragma acc kernels
 		errorNow = matrixTmp[result-1];
-		matrixSwap(totalSize, result);
+		matrixSwap(totalSize);
 		
 	}
 
-#pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize])
+#pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 
 	clock_t end = clock();
 	cublasDestroy(handle);
 	free(matrixOld);
 	free(matrixNew);
+	free(matrixTmp);
 	printf("iterations = %d, error = %lf, time = %lf\n", iterNow, errorNow, (double)(end - begin) / CLOCKS_PER_SEC);
 
 	return 0;
