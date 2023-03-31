@@ -135,7 +135,7 @@ int main(int argc, char** argv)
 		iterNow++;
 	}
 
-#pragma acc exit data
+#pragma acc exit data delete(matrixNew[0:totalSize])
 	clock_t end = clock();
 	cublasDestroy(handle);
 	free(matrixOld);
