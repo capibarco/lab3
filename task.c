@@ -110,7 +110,7 @@ int main(int argc, char** argv)
 		}
 		#pragma acc kernels
 		errorNow = fabs(matrixOld[result-1]);
-		/*
+		
 		#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize])
 		for (int i = 0; i < size; i++)
 		{
@@ -118,9 +118,9 @@ int main(int argc, char** argv)
 				printf("%d %lf\t", i * size + j, matrixOld[i * size + j]);
 			printf("\n");
 		}
-		#pragma acc kernels
-		printf("%d %lf\n",result-1,matrixOld[result-1]);
-		*/
+		printf("%lf\n",errorNow);
+		flush();
+		
 		matrixSwap(totalSize);
 		
 	}
