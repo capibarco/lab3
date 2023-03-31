@@ -164,7 +164,7 @@ int main(int argc, char** argv)
 				printf("\n");
 			}
 			printf("\n");
-		print("%d",result);
+		printf("%d",result);
 		errorNow = matrixSwap(totalSize, result);
 	}
 
