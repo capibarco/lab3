@@ -107,7 +107,7 @@ int main(int argc, char** argv)
 	free(matrixOld);
 	free(matrixNew);
 	free(matrixTmp);
-	printf("iterations = %d, error = %lf, time = %lf\n", iterNow, errorNow, (double)(end - begin) / CLOCKS_PER_SEC);
+	printf("iterations = %d, error = %lf, time = %lf\n", iteration, error, (double)(end - begin) / CLOCKS_PER_SEC);
 
 	return 0;
 }
