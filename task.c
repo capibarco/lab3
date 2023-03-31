@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 	const double minus = -1;
 	
 	clock_t begin = clock();
-#pragma acc enter data create(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) //copyin(errorNow)
+#pragma acc enter data create(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) copyin(errorNow)
 //#pragma acc parallel loop
 	for (int i = 0; i < size; i++)
 	{
