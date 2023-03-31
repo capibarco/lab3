@@ -79,8 +79,7 @@ int main(int argc, char** argv)
 #pragma acc enter data copyin(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
-		iterNow++;
-#pragma acc parallel loop collapse(2)  present(matrixOld[0:size*size], matrixNew[0:size*size]) vector_length(128) async
+#pragma acc parallel loop collapse(2)  present(matrixOld[0:totalSize], matrixNew[0:totalSize]) vector_length(128) async
 		for (int i = 1; i < size - 1; i++)
 		{
 			for (int j = 1; j < size - 1; j++)
@@ -92,11 +91,19 @@ int main(int argc, char** argv)
 					matrixOld[i * size + j + 1]);
 			}
 		}
+		
+		double* temp = matrixOld;
+		matrixOld = matrixNew;
+		matrixNew = temp;
+		#ifdef OPENACC__
+			acc_attach((void**)matrixOld);
+			acc_attach((void**)matrixNew);
+		#endif
 #pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) wait
 		{
 #pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 			{
-				stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
+				stat = cublasDcopy(handle, totalSize, matrixOld, 1, matrixTmp, 1);
 				if (stat != CUBLAS_STATUS_SUCCESS)
 				{
 					printf("cublasDcopy error\n");
@@ -104,7 +111,7 @@ int main(int argc, char** argv)
 					return EXIT_FAILURE;
 				}
 
-				stat = cublasDaxpy(handle, totalSize, &minus, matrixOld, 1, matrixTmp, 1);
+				stat = cublasDaxpy(handle, totalSize, &minus, matrixNew, 1, matrixTmp, 1);
 				if (stat != CUBLAS_STATUS_SUCCESS)
 				{
 					printf("cublasDaxpy error\n");
@@ -125,20 +132,15 @@ int main(int argc, char** argv)
 #pragma acc update self(matrixTmp[result-1])
 		errorNow = matrixTmp[result-1];	
 		
-		double* temp = matrixOld;
-		matrixOld = matrixNew;
-		matrixNew = temp;
-		acc_attach((void**)matrixOld);
-		acc_attach((void**)matrixNew);
+		iterNow++;
 	}
 
-#pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-
+#pragma acc exit data
 	clock_t end = clock();
 	cublasDestroy(handle);
 	free(matrixOld);
 	free(matrixNew);
-	free(matrixTmp);
+
 	printf("iterations = %d, error = %lf, time = %lf\n", iterNow, errorNow, (double)(end - begin) / CLOCKS_PER_SEC);
 
 	return 0;
