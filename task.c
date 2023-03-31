@@ -86,6 +86,7 @@ int main(int argc, char** argv)
 		printf("%d ", i);
 		for (int j = 0; j < size; j++)
 			printf("%lf\t", matrixNew[i * size + j]);
+		#pragma acc wait()
 		
 	}
 	printf("\n");
@@ -99,6 +100,7 @@ int main(int argc, char** argv)
 			printf("%d ", i);
 			for (int j = 0; j < size; j++)
 				printf("%lf\t", matrixNew[i * size + j]);
+			#pragma acc wait()
 		}
 #pragma acc host_data use_device(matrixNew, matrixOld)
 		{
