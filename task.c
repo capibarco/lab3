@@ -119,7 +119,7 @@ int main(int argc, char** argv)
 			printf("\n");
 		}
 		printf("%lf\n",errorNow);
-		fflush();
+		fflush(stdout);
 		
 		matrixSwap(totalSize);
 		
