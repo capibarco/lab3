@@ -8,7 +8,6 @@
 
 double* matrixOld = 0;
 double* matrixNew = 0;
-double* matrixTmp = 0;
 void matrixCalc(int size)
 {
 #pragma acc parallel loop independent collapse(2) vector vector_length(size) gang num_gangs(size) present(matrixOld[0:size*size], matrixNew[0:size*size])
@@ -55,7 +54,6 @@ int main(int argc, char** argv)
 
 	matrixOld = (double*)calloc(totalSize, sizeof(double));
 	matrixNew = (double*)calloc(totalSize, sizeof(double));
-	matrixTmp = (double*)malloc(totalSize * sizeof(double));
 	const double fraction = 10.0 / (size - 1);
 	double errorNow = 1.0;
 	int iterNow = 0;
@@ -63,7 +61,7 @@ int main(int argc, char** argv)
 	const double minus = -1;
 	
 	clock_t begin = clock();
-#pragma acc enter data create(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) copyin(errorNow)
+#pragma acc enter data create(matrixOld[0:totalSize], matrixNew[0:totalSize]) copyin(errorNow)
 #pragma acc parallel loop
 	for (int i = 0; i < size; i++)
 	{
@@ -81,8 +79,9 @@ int main(int argc, char** argv)
 	{
 		iterNow++;
 		matrixCalc(size);
-#pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
+#pragma acc host_data use_device(matrixNew, matrixOld)
 		{
+			/*
 			stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
@@ -90,9 +89,10 @@ int main(int argc, char** argv)
 				cublasDestroy(handle);
 				return EXIT_FAILURE;
 			}
+			*/
 			
 
-			stat = cublasDaxpy(handle, totalSize, &minus, matrixOld, 1, matrixTmp, 1);
+			stat = cublasDaxpy(handle, totalSize, &minus, matrixNew, 1, matrixOld, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasDaxpy error\n");
@@ -100,7 +100,7 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 
-			stat = cublasIdamax(handle, totalSize, matrixTmp, 1, &result);
+			stat = cublasIdamin(handle, totalSize, matrixOld, 1, &result);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasIdamax error\n");
@@ -109,12 +109,12 @@ int main(int argc, char** argv)
 			}
 		}
 		#pragma acc kernels
-		errorNow = matrixTmp[result-1];
+		errorNow = matrixOld[result-1];
 		matrixSwap(totalSize);
 		
 	}
 
-#pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
+#pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize])
 
 	clock_t end = clock();
 	cublasDestroy(handle);
