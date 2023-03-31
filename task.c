@@ -64,8 +64,6 @@ int main(int argc, char** argv)
 	const double minus = -1;
 	
 	clock_t begin = clock();
-#pragma acc enter data create(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) copyin(errorNow)
-#pragma acc parallel loop
 	for (int i = 0; i < size; i++)
 	{
 		matrixOld[i] = cornerUL + i * fraction;
@@ -78,6 +76,8 @@ int main(int argc, char** argv)
 		matrixNew[size * i + size - 1] = matrixOld[size * i + size - 1];
 		matrixNew[size * (size - 1) + i] = matrixOld[size * (size - 1) + i];
 	}
+#pragma acc enter data copyin(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) //copyin(errorNow)
+	
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
 		iterNow++;
