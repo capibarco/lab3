@@ -83,8 +83,8 @@ int main(int argc, char** argv)
 	for (int i = 0; i < size; i++)
 	{
 		for (int j = 0; j < size; j++)
-			printf("%lf ", matrixNew[i * size + j]);
-		printf("\t");
+			printf("%lf\t", matrixNew[i * size + j]);
+		printf("\n");
 	}
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
@@ -93,8 +93,8 @@ int main(int argc, char** argv)
 		for (int i = 0; i < size; i++)
 		{
 			for (int j = 0; j < size; j++)
-				printf("%lf ", matrixNew[i * size + j]);
-			printf("\t");
+				printf("%lf\t", matrixNew[i * size + j]);
+			printf("\n");
 		}
 #pragma acc host_data use_device(matrixNew, matrixOld)
 		{
