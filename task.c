@@ -81,7 +81,7 @@ int main(int argc, char** argv)
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
 		iterNow++;
-#pragma acc parallel loop collapse(2) present(matrixOld[0:size*size], matrixNew[0:size*size]) vector_length(128) async
+#pragma acc parallel loop collapse(2) present(matrixOld[0:size*size], matrixNew[0:size*size]) vector_length(128)
 		for (int i = 1; i < size - 1; i++)
 		{
 			for (int j = 1; j < size - 1; j++)
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 					matrixOld[i * size + j + 1]);
 			}
 		}
-#pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) wait
+#pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) 
 		{
 #pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 			{
