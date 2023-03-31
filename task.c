@@ -100,7 +100,7 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 
-			stat = cublasIdamin(handle, totalSize, matrixOld, 1, &result);
+			stat = cublasIdamax(handle, totalSize, matrixOld, 1, &result);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasIdamax error\n");
