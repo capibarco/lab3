@@ -92,7 +92,9 @@ int main(int argc, char** argv)
 					matrixOld[i * size + j + 1]);
 			}
 		}
-		
+		double* temp = matrixOld;
+		matrixOld = matrixNew;
+		matrixNew = temp;
 		acc_attach((void**)matrixOld);
 		acc_attach((void**)matrixNew);
 #pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
