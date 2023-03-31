@@ -5,10 +5,11 @@
 #include <math.h>
 #include <time.h>
 #include <cublas_v2.h>
-
+/*
 double* matrixOld = 0;
 double* matrixNew = 0;
 double* matrixTmp = 0;
+
 void matrixCalc(int size)
 {
 #pragma acc parallel loop independent collapse(2) vector vector_length(size) gang num_gangs(size) present(matrixOld[0:size*size], matrixNew[0:size*size])
@@ -34,7 +35,7 @@ void matrixSwap(int totalSize)
 		matrixNew = temp;
 	}
 }
-
+*/
 int main(int argc, char** argv)
 {
 	cublasStatus_t stat;
@@ -53,9 +54,9 @@ int main(int argc, char** argv)
 
 	int totalSize = size * size;
 
-	matrixOld = (double*)calloc(totalSize, sizeof(double));
-	matrixNew = (double*)calloc(totalSize, sizeof(double));
-	matrixTmp = (double*)malloc(totalSize * sizeof(double));
+	double* matrixOld = (double*)calloc(totalSize, sizeof(double));
+	double* matrixNew = (double*)calloc(totalSize, sizeof(double));
+	double* matrixTmp = (double*)malloc(totalSize * sizeof(double));
 	const double fraction = 10.0 / (size - 1);
 	double errorNow = 1.0;
 	int iterNow = 0;
@@ -80,7 +81,7 @@ int main(int argc, char** argv)
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
 		iterNow++;
-		#pragma acc parallel loop independent collapse(2) vector vector_length(size) gang num_gangs(size) present(matrixOld[0:size*size], matrixNew[0:size*size])
+#pragma acc parallel loop independent collapse(2) vector vector_length(size) gang num_gangs(size) present(matrixOld[0:size*size], matrixNew[0:size*size]) async
 		for (int i = 1; i < size - 1; i++)
 		{
 			for (int j = 1; j < size - 1; j++)
@@ -92,7 +93,7 @@ int main(int argc, char** argv)
 					matrixOld[i * size + j + 1]);
 			}
 		}
-		#pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
+#pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) wait
 #pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 		{
 			stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
@@ -119,8 +120,10 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 		}
-		#pragma acc update self(matrixTmp[result-1])
-		errorNow = matrixTmp[result-1];		
+		
+#pragma acc update self(matrixTmp[result-1])
+		errorNow = matrixTmp[result-1];	
+		
 		double* temp = matrixOld;
 		matrixOld = matrixNew;
 		matrixNew = temp;
