@@ -25,19 +25,19 @@ void matrixCalc(int size)
 	}
 }
 
-double matrixSwap(int totalSize, int idx)
+void matrixSwap(int totalSize, int idx)
 {
-	double err = 10;
+	//double err = 10;
 #pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 	{
-		err = matrixTmp[idx - 1];
-		printf("%d %lf\n",idx, err);
+		//err = matrixTmp[idx - 1];
+		//printf("%d %lf\n",idx, err);
 		double* temp = matrixOld;
 		matrixOld = matrixNew;
 		matrixNew = temp;
 		
 	}
-	return err;
+	//return err;
 }
 
 int main(int argc, char** argv)
@@ -165,9 +165,10 @@ int main(int argc, char** argv)
 				printf("\n");
 			}
 			printf("\n");
-		
-		errorNow = matrixSwap(totalSize, result);
 		#pragma acc kernels
+		errorNow = matrixTmp[result-1];
+			matrixSwap(totalSize, result);
+		
 		printf("%lf %d\n",matrixTmp[result-1], errorNow);
 	}
 
