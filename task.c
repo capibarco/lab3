@@ -31,6 +31,7 @@ double matrixSwap(int totalSize, int idx)
 #pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 	{
 		err = matrixTmp[idx - 1];
+		printf("%lf",err);
 		double* temp = matrixOld;
 		matrixOld = matrixNew;
 		matrixNew = temp;
