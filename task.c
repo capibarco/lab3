@@ -27,8 +27,8 @@ at(subArr, i, size - 1) = 10 / size * i + 20;
 memcpy(subArr, mainArr, sizeof(double) * size_q);
 }
 #define size_q size*size
-constexpr int ITERS_BETWEEN_UPDATE = 75;
-constexpr double negOne = -1;
+const int ITERS_BETWEEN_UPDATE = 75;
+
 
 int main(int argc, char** argv)
 {
@@ -83,14 +83,12 @@ int main(int argc, char** argv)
 				#pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 				{
 
-					status = cublasDcopy(handle, size_q, matrixOld, 1, matrixTmp, 1);
-					if (status != CUBLAS_STATUS_SUCCESS) std::cout << "copy error" << std::endl, exit(30);
+					stat = cublasDcopy(handle, size_q, matrixOld, 1, matrixTmp, 1);
+					
+					stat = cublasDaxpy(handle, size_q, &minus, matrixNew, 1, matrixTmp, 1);
+					
 
-					status = cublasDaxpy(handle, size_q, &negOne, matrixNew, 1, matrixTmp, 1);
-					if (status != CUBLAS_STATUS_SUCCESS) std::cout << "sum error" << std::endl, exit(40);
-
-					status = cublasIdamax(handle, size_q, matrixTmp, 1, &max_idx);
-					if (status != CUBLAS_STATUS_SUCCESS) std::cout << "abs max error" << std::endl, exit(41);
+					stat = cublasIdamax(handle, size_q, matrixTmp, 1, &max_idx);
 				}
 			}
 
