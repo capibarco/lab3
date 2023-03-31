@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 		matrixNew[size * i + size - 1] = matrixOld[size * i + size - 1];
 		matrixNew[size * (size - 1) + i] = matrixOld[size * (size - 1) + i];
 	}
-	#pragma acc kernel
+	#pragma acc kernels
 	for (int i = 0; i < size; i++)
 	{
 		for (int j = 0; j < size; j++)
@@ -91,7 +91,7 @@ int main(int argc, char** argv)
 	{
 		iterNow++;
 		matrixCalc(size);
-		#pragma acc kernel
+		#pragma acc kernels
 		for (int i = 0; i < size; i++)
 		{
 			for (int j = 0; j < size; j++)
