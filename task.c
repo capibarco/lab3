@@ -30,10 +30,11 @@ double matrixSwap(int totalSize, int idx)
 	double err = 10;
 #pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 	{
-		double* temp = matrixOld;
-		matrixOld = matrixNew;
-		matrixNew = temp;
 		err = matrixOld[idx - 1];
+		//double* temp = matrixOld;
+		matrixOld = matrixNew;
+		//matrixNew = temp;
+		
 	}
 	return err;
 }
