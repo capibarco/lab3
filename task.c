@@ -57,6 +57,8 @@ int main(int argc, char** argv)
  double error = 1;
     int iteration = 0;
     int iters_up = 0;
+	  int max_idx = 0;
+	const double minus = -1;
 	initArrays(matrixOld, matrixNew, size);
 	clock_t begin = clock();
 #pragma acc enter data copyin(matrixNew[:size_q], matrixOld[:size_q], matrixTmp[:size_q])
@@ -89,11 +91,11 @@ int main(int argc, char** argv)
 					stat = cublasDaxpy(handle, size_q, &minus, matrixNew, 1, matrixTmp, 1);
 					
 
-					stat = cublasIdamax(handle, size_q, matrixTmp, 1, &result);
+					stat = cublasIdamax(handle, size_q, matrixTmp, 1, &max_idx);
 				}
 			}
 
-			#pragma acc update self(matrixTmp[result-1])
+			#pragma acc update self(matrixTmp[max_idx-1])
             error = fabs(matrixTmp[max_idx - 1]);
 
             iters_up = -1;
