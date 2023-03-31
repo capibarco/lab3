@@ -131,7 +131,7 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 		}
-		#pragma acc parallel seq present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
+		#pragma acc parallel loop seq present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 		{
 			printf("N\n");
 			for (int i = 0; i < size; i++)
