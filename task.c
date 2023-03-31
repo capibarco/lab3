@@ -33,7 +33,7 @@ double matrixSwap(int totalSize, int idx)
 		double* temp = matrixOld;
 		matrixOld = matrixNew;
 		matrixNew = temp;
-		err = matrixTmp[idx - 1];
+		err = matrixOld[idx - 1];
 	}
 	return err;
 }
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 	{
 		printf("%d ", i);
 		for (int j = 0; j < size; j++)
-			printf("%lf\t", matrixOld[i * size + j]);
+			printf("%lf\t", matrixNew[i * size + j]);
 		printf("\n");
 	}
 	printf("\n");
@@ -98,11 +98,12 @@ int main(int argc, char** argv)
 		{
 			printf("%d ", i);
 			for (int j = 0; j < size; j++)
-				printf("%lf\t", matrixOld[i * size + j]);
+				printf("%lf\t", matrixNew[i * size + j]);
 			printf("\n");
 		}
 #pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 		{
+			/*
 			stat = cublasDcopy(handle, totalSize, matrixOld, 1, matrixTmp, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
@@ -110,8 +111,9 @@ int main(int argc, char** argv)
 				cublasDestroy(handle);
 				return EXIT_FAILURE;
 			}
+			*/
 
-			stat = cublasDaxpy(handle, totalSize, &minus, matrixTmp, 1, matrixNew , 1);
+			stat = cublasDaxpy(handle, totalSize, &minus, matrixNew, 1, matrixOld, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasDaxpy error\n");
@@ -119,7 +121,7 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 
-			stat = cublasIdamax(handle, totalSize, matrixTmp, 1, &result);
+			stat = cublasIdamax(handle, totalSize, matrixOld, 1, &result);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasIdamax error\n");
@@ -127,15 +129,6 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 		}
-#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-	for (int i = 0; i < size; i++)
-	{
-		printf("%d ", i);
-		for (int j = 0; j < size; j++)
-			printf("%lf\t", matrixTmp[i * size + j]);
-		printf("\n");
-	}
-	printf("\n");
 		errorNow = matrixSwap(totalSize, result);
 	}
 
