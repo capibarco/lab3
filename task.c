@@ -81,7 +81,7 @@ int main(int argc, char** argv)
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
 		iterNow++;
-#pragma acc parallel loop collapse(2) independent present(matrixOld[0:size*size], matrixNew[0:size*size]) vector_length(128)
+#pragma acc parallel loop collapse(2)  present(matrixOld[0:size*size], matrixNew[0:size*size]) vector_length(128)
 		for (int i = 1; i < size - 1; i++)
 		{
 			for (int j = 1; j < size - 1; j++)
