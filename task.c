@@ -51,6 +51,8 @@ int main(int argc, char** argv)
 	matrixOld = (double*)calloc(totalSize, sizeof(double));
 	matrixNew = (double*)calloc(totalSize, sizeof(double));
 	matrixTmp = (double*)malloc(totalSize * sizeof(double));
+	double eps = maxError;
+    int iterations = maxIteration;
  double error = 1;
     int iteration = 0;
     int iters_up = 0;
