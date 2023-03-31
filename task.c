@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 			printf("%lf\t", matrixOld[i * size + j]);
 		printf("\n");
 	}
-	printf("\n%d",result);
+	printf("\n%d %lf",result,matrixOld[result-1]);
 		matrixSwap(totalSize);
 		
 	}
