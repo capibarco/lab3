@@ -113,9 +113,8 @@ int main(int argc, char** argv)
 		#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize])
 	for (int i = 0; i < size; i++)
 	{
-		printf("%d ", i);
 		for (int j = 0; j < size; j++)
-			printf("%lf\t", matrixOld[i * size + j]);
+			printf("%d %lf\t", i * size + j, matrixOld[i * size + j]);
 		printf("\n");
 	}
 	printf("\n%d %lf",result,matrixOld[result-1]);
