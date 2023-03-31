@@ -131,8 +131,9 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 		}
-		#pragma acc kernels loop seq present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 			printf("N\n");
+		#pragma acc kernels loop seq present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
+		
 			for (int i = 0; i < size; i++)
 			{
 				printf("%d ", i);
@@ -141,8 +142,9 @@ int main(int argc, char** argv)
 				printf("\n");
 			}
 			printf("\n");
+		printf("O\n");
 		#pragma acc kernels loop seq present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-			printf("O\n");
+			
 			for (int i = 0; i < size; i++)
 			{
 				printf("%d ", i);
@@ -151,8 +153,9 @@ int main(int argc, char** argv)
 				printf("\n");
 			}
 			printf("\n");
+					printf("T\n");
 		#pragma acc kernels loop seq present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-			printf("T\n");
+
 			for (int i = 0; i < size; i++)
 			{
 				printf("%d ", i);
