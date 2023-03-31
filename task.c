@@ -99,7 +99,7 @@ int main(int argc, char** argv)
 			acc_attach((void**)matrixOld);
 			acc_attach((void**)matrixNew);
 		#endif
-		 if (iters_up >= 75 && iterNow < maxIteration) 
+		 if (iters_up >= 2 && iterNow < maxIteration) 
 		 {
 #pragma acc data present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize]) wait
 		{
