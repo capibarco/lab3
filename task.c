@@ -131,6 +131,36 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 		}
+		#pragma acc kernels loop seq  present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
+		{
+			printf("N\n");
+			for (int i = 0; i < size; i++)
+			{
+				printf("%d ", i);
+				for (int j = 0; j < size; j++)
+					printf("%lf\t", matrixNew[i * size + j]);
+				printf("\n");
+			}
+			printf("\n");
+			printf("O\n");
+			for (int i = 0; i < size; i++)
+			{
+				printf("%d ", i);
+				for (int j = 0; j < size; j++)
+					printf("%lf\t", matrixOld[i * size + j]);
+				printf("\n");
+			}
+			printf("\n");
+			printf("T\n");
+			for (int i = 0; i < size; i++)
+			{
+				printf("%d ", i);
+				for (int j = 0; j < size; j++)
+					printf("%lf\t", matrixTmp[i * size + j]);
+				printf("\n");
+			}
+			printf("\n");
+		}
 		errorNow = matrixSwap(totalSize, result);
 	}
 
