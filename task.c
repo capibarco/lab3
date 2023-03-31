@@ -164,7 +164,8 @@ int main(int argc, char** argv)
 				printf("\n");
 			}
 			printf("\n");
-		printf("%d",result);
+		#pragma acc kernels
+		printf("%lf",matrixTmp[result-1]);
 		errorNow = matrixSwap(totalSize, result);
 	}
 
