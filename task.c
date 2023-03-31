@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 
 	matrixOld = (double*)calloc(totalSize, sizeof(double));
 	matrixNew = (double*)calloc(totalSize, sizeof(double));
-	matrixTmp = (double*)malloc(totalSize, sizeof(double));
+	matrixTmp = (double*)malloc(totalSize * sizeof(double));
 	const double fraction = 10.0 / (size - 1);
 	double errorNow = 1.0;
 	int iterNow = 0;
