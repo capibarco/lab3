@@ -82,8 +82,12 @@ int main(int argc, char** argv)
 	}
 	#pragma acc kernels
 	for (int i = 0; i < size; i++)
+	{
+		printf("%d ", i);
 		for (int j = 0; j < size; j++)
 			printf("%lf\t", matrixNew[i * size + j]);
+		
+	}
 	printf("\n");
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
@@ -91,8 +95,11 @@ int main(int argc, char** argv)
 		matrixCalc(size);
 		#pragma acc kernels
 		for (int i = 0; i < size; i++)
+		{
+			printf("%d ", i);
 			for (int j = 0; j < size; j++)
 				printf("%lf\t", matrixNew[i * size + j]);
+		}
 #pragma acc host_data use_device(matrixNew, matrixOld)
 		{
 			stat = cublasDcopy(handle, totalSize, matrixOld, 1, matrixTmp, 1);
