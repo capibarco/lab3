@@ -132,7 +132,7 @@ int main(int argc, char** argv)
 		}
 		
 #pragma acc update self(matrixTmp[result-1])
-		errorNow = matrixTmp[result-1];	
+		errorNow = fabs(matrixTmp[result-1]);	
 			 iters_up=-1;
 		 }
 		iters_up++;
