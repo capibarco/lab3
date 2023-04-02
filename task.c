@@ -76,6 +76,9 @@ int main(int argc, char** argv)
 		matrixNew[size * i + size - 1] = matrixOld[size * i + size - 1];
 		matrixNew[size * (size - 1) + i] = matrixOld[size * (size - 1) + i];
 	}
+	for (int i = 1; i < size-1; i++)
+		for (int j = 1; j < size-1; j++)
+			matrixOld[size * i + j] = 20.0;
 #pragma acc enter data copyin(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
