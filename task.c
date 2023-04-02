@@ -140,7 +140,14 @@ int main(int argc, char** argv)
 		 }
 		iters_up++;
 		iterNow++;
-		
+		if (errorNow > maxError && iterNow < maxIteration)
+		for (int i = 1; i < size-1; i++)
+		{
+			for (int j = 1; j < size-1; j++)
+				printf("%lf\t",matrixOld[size * i + j]);
+			printf("\n");				  
+		}
+		printf("\n");
 	}
 
 #pragma acc exit data delete(matrixNew[0:totalSize])
