@@ -114,7 +114,8 @@ int main(int argc, char** argv)
 		
 		#pragma acc update self(matrixNew[result-1])
 		errorNow = matrixNew[result-1]>=0?matrixNew[result-1]:-matrixNew[result-1];	
-		
+		printf("%lf\n",errorNow);
+		fflush(stdout);
 		iterNow++;
 		/*
 		printf("O\n");
