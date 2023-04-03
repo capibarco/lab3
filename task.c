@@ -78,7 +78,8 @@ int main(int argc, char** argv)
 					matrixOld[i * size + j + 1]);
 			}
 		}
-		
+		if (iterNow%100==0)
+		{
 		#pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 		{
 			stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
@@ -105,13 +106,15 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}			
 		}
+			#pragma acc update self(matrixTmp[result-1])
+			errorNow = matrixTmp[result-1];	
+		}
 
 		double* temp = matrixOld;
 		matrixOld = matrixNew;
 		matrixNew = temp;
 		
-		#pragma acc update self(matrixTmp[result-1])
-		errorNow = matrixTmp[result-1];	
+		
 		iterNow++;		
 	}
 
