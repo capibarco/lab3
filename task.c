@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 		double* temp = matrixOld;
 		matrixOld = matrixNew;
 		matrixNew = temp;
-		#pragma acc update self(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
+		#pragma acc update self(matrixTmp[result-1])
 		errorNow = matrixTmp[result-1];	
 		
 		iterNow++;
