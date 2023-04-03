@@ -79,25 +79,17 @@ int main(int argc, char** argv)
 			}
 		}
 		
-		printf("O\n");
-		#pragma acc kernels loop seq
-		for (int i = 0; i < size; i++)
+		#pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 		{
-			for (int j = 0; j < size; j++)
-				printf("%lf\t",matrixOld[size * i + j]);
-			printf("\n");				  
-		}
-		#pragma acc host_data use_device(matrixNew, matrixOld)
-		{
-			/*stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
+			stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasDcopy error\n");
 				cublasDestroy(handle);
 				return EXIT_FAILURE;
-			}*/
+			}
 
-			stat = cublasDaxpy(handle, totalSize, &minus, matrixNew, 1, matrixOld, 1);
+			stat = cublasDaxpy(handle, totalSize, &minus, matrixOld, 1, matrixTmp, 1);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasDaxpy error\n");
@@ -105,7 +97,7 @@ int main(int argc, char** argv)
 				return EXIT_FAILURE;
 			}
 
-			stat = cublasIdamax(handle, totalSize, matrixOld, 1, &result);
+			stat = cublasIdamax(handle, totalSize, matrixTmp, 1, &result);
 			if (stat != CUBLAS_STATUS_SUCCESS)
 			{
 				printf("cublasIdamax error\n");
@@ -118,28 +110,9 @@ int main(int argc, char** argv)
 		matrixOld = matrixNew;
 		matrixNew = temp;
 		
-		#pragma acc update self(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-		errorNow = matrixNew[result-1]>=0?matrixNew[result-1]:-matrixNew[result-1];	
-		printf("%lf\n",errorNow);
-		fflush(stdout);
-		iterNow++;
-		
-		printf("O\n");
-		for (int i = 0; i < size; i++)
-		{
-			for (int j = 0; j < size; j++)
-				printf("%lf\t",matrixOld[size * i + j]);
-			printf("\n");				  
-		}
-		printf("N\n");
-		for (int i = 0; i < size; i++)
-		{
-			for (int j = 0; j < size; j++)
-				printf("%lf\t",matrixNew[size * i + j]);
-			printf("\n");				  
-		}
-		
-		
+		#pragma acc update self(matrixTmp[result-1])
+		errorNow = matrixTmp[result-1];	
+		iterNow++;		
 	}
 
 	#pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
