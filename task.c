@@ -65,25 +65,25 @@ int main(int argc, char** argv)
 	}
 	printf("O\n");
 	#pragma acc kernels present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-		for (int i = 1; i < size-1; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 1; j < size-1; j++)
+			for (int j = 0; j < size; j++)
 				printf("%lf\t",matrixOld[size * i + j]);
 			printf("\n");				  
 		}
 		printf("N\n");
 	#pragma acc kernels present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-		for (int i = 1; i < size-1; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 1; j < size-1; j++)
+			for (int j = 0; j < size; j++)
 				printf("%lf\t",matrixNew[size * i + j]);
 			printf("\n");				  
 		}
 		printf("T\n");
 	#pragma acc kernels present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-		for (int i = 1; i < size-1; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 1; j < size-1; j++)
+			for (int j = 0; j < size; j++)
 				printf("%lf\t",matrixTmp[size * i + j]);
 			printf("\n");				  
 		}
@@ -142,23 +142,23 @@ int main(int argc, char** argv)
 		iterNow++;
 		
 		printf("O\n");
-		for (int i = 1; i < size-1; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 1; j < size-1; j++)
+			for (int j = 0; j < size; j++)
 				printf("%lf\t",matrixOld[size * i + j]);
 			printf("\n");				  
 		}
 		printf("N\n");
-		for (int i = 1; i < size-1; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 1; j < size-1; j++)
+			for (int j = 0; j < size; j++)
 				printf("%lf\t",matrixNew[size * i + j]);
 			printf("\n");				  
 		}
 		printf("T\n");
-		for (int i = 1; i < size-1; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 1; j < size-1; j++)
+			for (int j = 0; j < size; j++)
 				printf("%lf\t",matrixTmp[size * i + j]);
 			printf("\n");				  
 		}
