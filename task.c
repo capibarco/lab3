@@ -77,11 +77,8 @@ int main(int argc, char** argv)
 					matrixOld[(i - 1) * size + j] +
 					matrixOld[(i + 1) * size + j] +
 					matrixOld[i * size + j + 1]);
-				printf("%lf\t",matrixNew[size * i + j]);
 			}
-			printf("\n");
 		}
-		printf("\n");
 		
 		#pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 		{
@@ -111,10 +108,32 @@ int main(int argc, char** argv)
 		}
 
 		
-		#pragma acc update self(matrixTmp[result-1])
+		#pragma acc update self(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 		errorNow = matrixTmp[result-1];	
 		
 		iterNow++;
+		printf("O\n");
+		for (int i = 1; i < size-1; i++)
+		{
+			for (int j = 1; j < size-1; j++)
+				printf("%lf\t",matrixOld[size * i + j]);
+			printf("\n");				  
+		}
+		printf("N\n");
+		for (int i = 1; i < size-1; i++)
+		{
+			for (int j = 1; j < size-1; j++)
+				printf("%lf\t",matrixNew[size * i + j]);
+			printf("\n");				  
+		}
+		printf("T\n");
+		for (int i = 1; i < size-1; i++)
+		{
+			for (int j = 1; j < size-1; j++)
+				printf("%lf\t",matrixTmp[size * i + j]);
+			printf("\n");				  
+		}
+		
 		
 	}
 
