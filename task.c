@@ -63,30 +63,6 @@ int main(int argc, char** argv)
 		matrixNew[size * i + size - 1] = matrixOld[size * i + size - 1];
 		matrixNew[size * (size - 1) + i] = matrixOld[size * (size - 1) + i];
 	}
-	printf("O\n");
-	#pragma acc kernels present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-		for (int i = 0; i < size; i++)
-		{
-			for (int j = 0; j < size; j++)
-				printf("%lf\t",matrixOld[size * i + j]);
-			printf("\n");				  
-		}
-		printf("N\n");
-	#pragma acc kernels present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-		for (int i = 0; i < size; i++)
-		{
-			for (int j = 0; j < size; j++)
-				printf("%lf\t",matrixNew[size * i + j]);
-			printf("\n");				  
-		}
-		printf("T\n");
-	#pragma acc kernels present(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
-		for (int i = 0; i < size; i++)
-		{
-			for (int j = 0; j < size; j++)
-				printf("%lf\t",matrixTmp[size * i + j]);
-			printf("\n");				  
-		}
 	while (errorNow > maxError && iterNow < maxIteration)
 	{
 		
@@ -103,7 +79,13 @@ int main(int argc, char** argv)
 			}
 		}
 		
-		
+		printf("O\n");
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+				printf("%lf\t",matrixOld[size * i + j]);
+			printf("\n");				  
+		}
 		#pragma acc host_data use_device(matrixNew, matrixOld)
 		{
 			/*stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
@@ -155,14 +137,6 @@ int main(int argc, char** argv)
 				printf("%lf\t",matrixNew[size * i + j]);
 			printf("\n");				  
 		}
-		printf("T\n");
-		for (int i = 0; i < size; i++)
-		{
-			for (int j = 0; j < size; j++)
-				printf("%lf\t",matrixTmp[size * i + j]);
-			printf("\n");				  
-		}
-		
 		
 		
 	}
