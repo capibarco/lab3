@@ -105,6 +105,31 @@ int main(int argc, char** argv)
 				cublasDestroy(handle);
 				return EXIT_FAILURE;
 			}
+			printf("O\n");
+			for (int i = 1; i < size-1; i++)
+		{
+			for (int j = 1; j < size-1; j++)
+				printf("%lf\t",matrixOld[size * i + j]);
+			printf("\n");				  
+		}
+		printf("\n");
+			printf("N\n");
+			for (int i = 1; i < size-1; i++)
+		{
+			for (int j = 1; j < size-1; j++)
+				printf("%lf\t",matrixNew[size * i + j]);
+			printf("\n");				  
+		}
+		printf("\n");
+			printf("T\n");
+			for (int i = 1; i < size-1; i++)
+		{
+			for (int j = 1; j < size-1; j++)
+				printf("%lf\t",matrixTmp[size * i + j]);
+			printf("\n");				  
+		}
+		printf("\n");
+			
 		}
 
 		
