@@ -80,6 +80,7 @@ int main(int argc, char** argv)
 		}
 		
 		printf("O\n");
+		#pragma acc kernels loop seq
 		for (int i = 0; i < size; i++)
 		{
 			for (int j = 0; j < size; j++)
