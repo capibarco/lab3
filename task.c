@@ -108,10 +108,14 @@ int main(int argc, char** argv)
 		}
 
 		
+		double* temp = matrixOld;
+		matrixOld = matrixNew;
+		matrixNew = temp;
 		#pragma acc update self(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 		errorNow = matrixTmp[result-1];	
 		
 		iterNow++;
+		/*
 		printf("O\n");
 		for (int i = 1; i < size-1; i++)
 		{
@@ -133,6 +137,7 @@ int main(int argc, char** argv)
 				printf("%lf\t",matrixTmp[size * i + j]);
 			printf("\n");				  
 		}
+		*/
 		
 		
 	}
