@@ -112,12 +112,12 @@ int main(int argc, char** argv)
 		matrixOld = matrixNew;
 		matrixNew = temp;
 		
-		#pragma acc update self(matrixNew[result-1])
+		#pragma acc update self(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 		errorNow = matrixNew[result-1]>=0?matrixNew[result-1]:-matrixNew[result-1];	
 		printf("%lf\n",errorNow);
 		fflush(stdout);
 		iterNow++;
-		/*
+		
 		printf("O\n");
 		for (int i = 1; i < size-1; i++)
 		{
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
 				printf("%lf\t",matrixTmp[size * i + j]);
 			printf("\n");				  
 		}
-		*/
+		
 		
 		
 	}
