@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 	const double maxError = strtod((argv[1]), &eptr);
 	const int size = atoi(argv[2]);
 	const int maxIteration = atoi(argv[3]);
-	const int toPrint = argc > 3 ? 1 : 0;
+	const int toPrint = argc > 4 ? 1 : 0;
 
 	int totalSize = size * size;
 
