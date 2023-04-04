@@ -6,16 +6,6 @@
 #include <time.h>
 #include <cublas_v2.h>
 
-/*
-for (int i = 1; i < size-1; i++)
-		{
-			for (int j = 1; j < size-1; j++)
-				printf("%lf\t",matrixNew[size * i + j]);
-			printf("\n");				  
-		}
-		printf("\n");
-*/	
-
 int main(int argc, char** argv)
 {
 	cublasStatus_t stat;
@@ -31,6 +21,7 @@ int main(int argc, char** argv)
 	const double maxError = strtod((argv[1]), &eptr);
 	const int size = atoi(argv[2]);
 	const int maxIteration = atoi(argv[3]);
+	const bool toPrint = (argc>3)
 
 	int totalSize = size * size;
 
@@ -114,9 +105,19 @@ int main(int argc, char** argv)
 		matrixOld = matrixNew;
 		matrixNew = temp;
 		
-		iterNow++;		
+		iterNow++;	
 	}
-
+	if (toPrint)
+	{
+		#pragma acc kernels loop seq
+		for (int i = 1; i < size-1; i++)
+		{
+			for (int j = 1; j < size-1; j++)
+				printf("%lf\t",matrixOld[size * i + j]);
+			printf("\n");				  
+		}
+		printf("\n");
+	}
 	#pragma acc exit data delete(matrixOld[0:totalSize], matrixNew[0:totalSize], matrixTmp[0:totalSize])
 	clock_t end = clock();
 	cublasDestroy(handle);
