@@ -55,9 +55,9 @@ int main(int argc, char** argv)
 	if (toPrint)
 	{
 		#pragma acc kernels loop seq
-		for (int i = 1; i < size-1; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 1; j < size-1; j++)
+			for (int j = 0; j < size; j++)
 				printf("%lf\t",matrixOld[size * i + j]);
 			printf("\n");				  
 		}
@@ -119,9 +119,9 @@ int main(int argc, char** argv)
 	if (toPrint)
 	{
 		#pragma acc kernels loop seq
-		for (int i = 1; i < size-1; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 1; j < size-1; j++)
+			for (int j = 0; j < size; j++)
 				printf("%lf\t",matrixOld[size * i + j]);
 			printf("\n");				  
 		}
