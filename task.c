@@ -78,34 +78,34 @@ int main(int argc, char** argv)
 					matrixOld[i * size + j + 1]);
 			}
 		}
-		if (iterNow%100==0)
+		if (iterNow % 100 == 0)
 		{
-		#pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
-		{
-			stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
-			if (stat != CUBLAS_STATUS_SUCCESS)
+			#pragma acc host_data use_device(matrixNew, matrixOld, matrixTmp)
 			{
-				printf("cublasDcopy error\n");
-				cublasDestroy(handle);
-				return EXIT_FAILURE;
-			}
+				stat = cublasDcopy(handle, totalSize, matrixNew, 1, matrixTmp, 1);
+				if (stat != CUBLAS_STATUS_SUCCESS)
+				{
+					printf("cublasDcopy error\n");
+					cublasDestroy(handle);
+					return EXIT_FAILURE;
+				}
 
-			stat = cublasDaxpy(handle, totalSize, &minus, matrixOld, 1, matrixTmp, 1);
-			if (stat != CUBLAS_STATUS_SUCCESS)
-			{
-				printf("cublasDaxpy error\n");
-				cublasDestroy(handle);
-				return EXIT_FAILURE;
-			}
+				stat = cublasDaxpy(handle, totalSize, &minus, matrixOld, 1, matrixTmp, 1);
+				if (stat != CUBLAS_STATUS_SUCCESS)
+				{
+					printf("cublasDaxpy error\n");
+					cublasDestroy(handle);
+					return EXIT_FAILURE;
+				}
 
-			stat = cublasIdamax(handle, totalSize, matrixTmp, 1, &result);
-			if (stat != CUBLAS_STATUS_SUCCESS)
-			{
-				printf("cublasIdamax error\n");
-				cublasDestroy(handle);
-				return EXIT_FAILURE;
-			}			
-		}
+				stat = cublasIdamax(handle, totalSize, matrixTmp, 1, &result);
+				if (stat != CUBLAS_STATUS_SUCCESS)
+				{
+					printf("cublasIdamax error\n");
+					cublasDestroy(handle);
+					return EXIT_FAILURE;
+				}			
+			}
 			#pragma acc update self(matrixTmp[result-1])
 			errorNow = matrixTmp[result-1];	
 		}
@@ -113,7 +113,6 @@ int main(int argc, char** argv)
 		double* temp = matrixOld;
 		matrixOld = matrixNew;
 		matrixNew = temp;
-		
 		
 		iterNow++;		
 	}
