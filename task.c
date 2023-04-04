@@ -32,11 +32,9 @@ int main(int argc, char** argv)
 	const double fraction = 10.0 / (size - 1);
 	double errorNow = 1.0;
 	int iterNow = 0;
-	int iters_up = 0;
 	
 	int result = 0;
 	const double minus = -1;
-	
 	
 	clock_t begin = clock();
 	
